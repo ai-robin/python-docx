@@ -219,8 +219,10 @@ register_element_cls('w:vanish',     CT_OnOff)
 register_element_cls('w:vertAlign',  CT_VerticalAlignRun)
 register_element_cls('w:webHidden',  CT_OnOff)
 
-from .text.paragraph import CT_P  # noqa
+from .text.paragraph import CT_P, CT_Ins, CT_Del  # noqa
 register_element_cls('w:p', CT_P)
+register_element_cls('w:ins', CT_Ins)
+register_element_cls('w:del', CT_Del)
 
 from .text.parfmt import (  # noqa
     CT_Ind,

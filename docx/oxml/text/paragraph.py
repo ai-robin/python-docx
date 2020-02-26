@@ -8,6 +8,56 @@ from ..ns import qn
 from ..xmlchemy import BaseOxmlElement, OxmlElement, ZeroOrMore, ZeroOrOne
 
 
+class CT_Ins(BaseOxmlElement):
+    """
+    ``<w:p>`` element, containing runs marked for insertion into a paragraph.
+    """
+
+    r = ZeroOrMore('w:r')
+
+    def add_del_after(self):
+        """
+        Return a new ``<w:del>`` element inserted directly after this one.
+        """
+        new_del = OxmlElement('w:del')
+        self.addnext(new_del)
+        return new_del
+
+    @property
+    def text(self):
+        """
+        Return an Empty string, as text will be interpreted based on
+        the child runs.
+        """
+
+        return ''
+
+
+class CT_Del(BaseOxmlElement):
+    """
+    ``<w:p>`` element, containing runs marked for deletion from a paragraph.
+    """
+
+    r = ZeroOrMore('w:r')
+
+    def add_del_after(self):
+        """
+        Return a new ``<w:del>`` element inserted directly after this one.
+        """
+        new_del = OxmlElement('w:del')
+        self.addnext(new_del)
+        return new_del
+
+    @property
+    def text(self):
+        """
+        Return an Empty string, as text should not be considered present
+        within the current version of the paragraph.
+        """
+
+        return ''
+
+
 class CT_P(BaseOxmlElement):
     """
     ``<w:p>`` element, containing the properties and text for a paragraph.

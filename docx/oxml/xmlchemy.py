@@ -390,7 +390,10 @@ class _BaseChildElement(object):
         property descriptor.
         """
         def get_child_element_list(obj):
-            return obj.findall(qn(self._nsptagname))
+            if isinstance(self._nsptagname, list):
+                return obj.xpath(f".//{'|'.join(self._nsptagname)}")
+            else:
+                return obj.xpath(f'.//{self._nsptagname}')
         get_child_element_list.__doc__ = (
             'A list containing each of the ``<%s>`` child elements, in the o'
             'rder they appear.' % self._nsptagname
