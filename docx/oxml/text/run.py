@@ -7,7 +7,7 @@ Custom element classes related to text runs (CT_R).
 from ..ns import qn
 from ..simpletypes import ST_BrClear, ST_BrType
 from ..xmlchemy import (
-    BaseOxmlElement, OptionalAttribute, ZeroOrMore, ZeroOrOne
+    BaseOxmlElement, OptionalAttribute, OxmlElement, ZeroOrMore, ZeroOrOne
 )
 
 
@@ -42,6 +42,22 @@ class CT_R(BaseOxmlElement):
         if len(text.strip()) < len(text):
             t.set(qn('xml:space'), 'preserve')
         return t
+
+    def add_ins_after(self):
+        """
+        Return a new ``<w:ins>`` element inserted directly after this run.
+        """
+        new_ins = OxmlElement('w:ins')
+        self.addnext(new_ins)
+        return new_ins
+
+    def add_del_after(self):
+        """
+        Return a new ``<w:del>`` element inserted directly after this run.
+        """
+        new_del = OxmlElement('w:del')
+        self.addnext(new_del)
+        return new_del
 
     def add_drawing(self, inline_or_anchor):
         """

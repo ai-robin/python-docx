@@ -80,6 +80,23 @@ class Run(Parented):
         t = self._r.add_t(text)
         return _Text(t)
 
+    def add_track_insert_after(self):
+        """
+        Return a newly created ins, inserted directly after this
+        run.
+        """
+
+        ins_elem = self._r.add_ins_after()
+        return ins_elem
+
+    def add_track_delete_after(self):
+        """
+        Return a newly created del, inserted directly after this
+        run.
+        """
+        del_elem = self._r.add_del_after()
+        return del_elem
+
     @property
     def bold(self):
         """
