@@ -29,6 +29,7 @@ class CT_R(BaseOxmlElement):
     cr = ZeroOrMore('w:cr')
     tab = ZeroOrMore('w:tab')
     drawing = ZeroOrMore('w:drawing')
+    deltext = ZeroOrMore('w:delText')
 
     def _insert_rPr(self, rPr):
         self.insert(0, rPr)
@@ -38,7 +39,18 @@ class CT_R(BaseOxmlElement):
         """
         Return a newly added ``<w:t>`` element containing *text*.
         """
+
         t = self._add_t(text=text)
+        if len(text.strip()) < len(text):
+            t.set(qn('xml:space'), 'preserve')
+        return t
+
+    def add_deltext(self, text):
+        """
+        Return a newly added ``<w:delText>`` element containing *text*.
+        """
+
+        t = self._add_deltext(text=text)
         if len(text.strip()) < len(text):
             t.set(qn('xml:space'), 'preserve')
         return t
@@ -58,6 +70,13 @@ class CT_R(BaseOxmlElement):
         new_del = OxmlElement('w:del')
         self.addnext(new_del)
         return new_del
+
+    def add_run_after(self):
+        """
+        """
+        new_run = OxmlElement('w:r')
+        self.addnext(new_run)
+        return new_run
 
     def add_drawing(self, inline_or_anchor):
         """
@@ -123,6 +142,13 @@ class CT_R(BaseOxmlElement):
 class CT_Text(BaseOxmlElement):
     """
     ``<w:t>`` element, containing a sequence of characters within a run.
+    """
+
+
+class CT_DelText(BaseOxmlElement):
+    """
+    ``<w:delText>`` element, containing a sequence of characters within a run
+    that have been deleted.
     """
 
 
