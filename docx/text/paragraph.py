@@ -62,6 +62,9 @@ class Paragraph(Parented):
         self._p.clear_content()
         return self
 
+    def delete_run(self, run):
+        self._p.remove(run._r)
+
     def insert_paragraph_before(self, text=None, style=None):
         """
         Return a newly created paragraph, inserted directly before this
