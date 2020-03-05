@@ -177,7 +177,7 @@ class Paragraph(Parented):
                 self.delete_run(run)
 
         if ins_element:
-            ins_element.add_run(replacement_text)
+            ins_element.add_run(replacement_text, original_run=end_run)
 
     @property
     def runs(self):

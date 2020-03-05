@@ -6,6 +6,8 @@ Run-related proxy objects for python-docx, Run in particular.
 
 from __future__ import absolute_import, print_function, unicode_literals
 
+import copy
+
 from ..enum.style import WD_STYLE_TYPE
 from ..enum.text import WD_BREAK
 from .font import Font
@@ -20,7 +22,7 @@ class Ins(Parented):
         super(Ins, self).__init__(parent)
         self._r = self._element = self.element = r
 
-    def add_run(self, text):
+    def add_run(self, text, original_run=None):
         """
         Returns a newly appended |_Text| object (corresponding to a new
         ``<w:t>`` child element) to the ins, containing *text*. """
@@ -29,6 +31,9 @@ class Ins(Parented):
         run = Run(r, self)
 
         run.text = text
+
+        if original_run:
+            run._r._insert_rPr(copy.deepcopy(original_run.rPr))
 
         return run
 
@@ -122,12 +127,9 @@ class Run(Parented):
         the possibly more friendly approach of assigning text to the
         :attr:`Run.text` property.
         """
-        t = self._r.add_deltext(text)
 
-        self.style = original_run.style
-        self.bold = original_run.bold
-        self.italic = original_run.italic
-        self.underline = original_run.underline
+        t = self._r.add_deltext(text)
+        self._r._insert_rPr(copy.deepcopy(original_run.rPr))
 
         return _Text(t)
 
@@ -242,6 +244,14 @@ class Run(Parented):
         self.font.italic = value
 
     @property
+    def rPr(self):
+        """
+        Return the rPr element that is a child of this run, which contains
+        styling settings used within the run.
+        """
+        return self._r.rPr
+
+    @property
     def style(self):
         """
         Read/write. A |_CharacterStyle| object representing the character
@@ -300,7 +310,6 @@ class Run(Parented):
 
         while text:
             if self.text.strip().endswith(text):
-                print(self.text, '-', text)
                 return len(self.text.strip()) - len(text) + subtract_space
             text = text[:-1]
 
