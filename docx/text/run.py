@@ -60,7 +60,7 @@ class Del(Parented):
         super(Del, self).__init__(parent)
         self._r = self._element = self.element = r
 
-    def add_deltext(self, text):
+    def add_deltext(self, original_run, text):
         """
         Returns a newly appended |_Text| object (corresponding to a new
         ``<w:delText>`` child element) to the del, containing *text*.
@@ -69,7 +69,7 @@ class Del(Parented):
         r = self._r.add_r()
         run = Run(r, self)
 
-        run.add_deltext(text)
+        run.add_deltext(original_run, text)
 
         return run
 
@@ -115,7 +115,7 @@ class Run(Parented):
         if clear is not None:
             br.clear = clear
 
-    def add_deltext(self, text):
+    def add_deltext(self, original_run, text):
         """
         Returns a newly appended |_Text| object (corresponding to a new
         ``<w:t>`` child element) to the run, containing *text*. Compare with
@@ -123,6 +123,12 @@ class Run(Parented):
         :attr:`Run.text` property.
         """
         t = self._r.add_deltext(text)
+
+        self.style = original_run.style
+        self.bold = original_run.bold
+        self.italic = original_run.italic
+        self.underline = original_run.underline
+
         return _Text(t)
 
     def add_picture(self, image_path_or_stream, width=None, height=None):
@@ -173,6 +179,13 @@ class Run(Parented):
         Return a newly created del, inserted directly after this run.
         """
         del_elem = self._r.add_del_after()
+        return Del(del_elem, self._parent)
+
+    def add_track_delete_before(self):
+        """
+        Return a newly created del, inserted directly before this run.
+        """
+        del_elem = self._r.add_del_before()
         return Del(del_elem, self._parent)
 
     def add_run_after(self):
@@ -263,6 +276,40 @@ class Run(Parented):
     @text.setter
     def text(self, text):
         self._r.text = text
+
+    def text_start_index(self, text):
+        """
+        Determines the index corresponding to where the text supplied
+        starts within the run. Returns None if the text does not
+        start within the run.
+        """
+
+        # If the phrase text starts with a space, we'll need to subtract
+        # one from the index, as it will get stripped
+        if self.text.startswith(' '):
+            subtract_space = 1
+        else:
+            subtract_space = 0
+
+        while text:
+            if self.text.strip().endswith(text):
+                return len(self.text.strip()) - len(text) - subtract_space
+            text = text[:-1]
+
+    def text_end_index(self, text):
+        """
+
+        """
+
+        while text:
+            if self.text.strip().startswith(text):
+                return self.text.index(text) + len(text) - 1
+
+            split_text = text.split(' ')
+            if len(split_text[0]) > 1 and split_text[0].endswith(','):
+                text = ', ' + ' '.join(split_text[1:])
+            else:
+                text = ' '.join(split_text[1:])
 
     @property
     def underline(self):

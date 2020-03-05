@@ -101,6 +101,26 @@ class Document(ElementProxy):
         """
         return self._part.core_properties
 
+    def find_text_paragraphs(self, text):
+        """
+        Return the start and end paragraphs of the text provided.
+        """
+
+        start_paragraph = None
+        end_paragraph = None
+        for paragraph in self.paragraphs:
+            if text in paragraph.text:
+                start_paragraph = paragraph
+                end_paragraph = paragraph
+                break
+            elif not start_paragraph and paragraph.text_starts_in_paragraph(text):
+                start_paragraph = paragraph
+            elif start_paragraph and paragraph.text_ends_in_paragraph(text):
+                end_paragraph = paragraph
+                break
+
+        return start_paragraph, end_paragraph
+
     @property
     def inline_shapes(self):
         """
@@ -126,6 +146,18 @@ class Document(ElementProxy):
         The |DocumentPart| object of this document.
         """
         return self._part
+
+    def replace_text_track_change(self, original_text, replacement_text):
+        """
+
+        """
+
+        start_paragraph, end_paragraph = self.find_text_paragraphs(original_text)
+
+        start_paragraph.replace_text_track_change(original_text, replacement_text)
+
+        if start_paragraph.text != end_paragraph.text:
+            end_paragraph.replace_text_track_change(original_text, replacement_text)
 
     def save(self, path_or_stream):
         """

@@ -65,6 +65,30 @@ class Paragraph(Parented):
     def delete_run(self, run):
         self._p.remove(run._r)
 
+    def find_text_start_run(self, text):
+        """
+        Return the run and index within the run that indicates where
+        the text provided, starts.
+        """
+
+        for run in self.runs:
+            start_index = run.text_start_index(text)
+            if start_index is not None:
+                return run, start_index
+
+
+    def find_text_end_run(self, text):
+        """
+        Return the run and index within the run that indicates where
+        the text provided, ends.
+        """
+
+        for run in self.runs:
+            end_index = run.text_end_index(text)
+            if end_index is not None:
+                return run, end_index
+
+
     def insert_paragraph_before(self, text=None, style=None):
         """
         Return a newly created paragraph, inserted directly before this
@@ -86,6 +110,31 @@ class Paragraph(Parented):
         properties for this paragraph, such as line spacing and indentation.
         """
         return ParagraphFormat(self._element)
+
+    def replace_text_track_change(self, original_text, replacement_text):
+        """
+
+        """
+
+        start_run = self.find_text_start_run(original_text)
+        end_run = self.find_text_end_run(original_text)
+        del_element = start_run[0].add_track_delete_after()
+        ins_element = start_run[0].add_track_insert_after()
+        found_start = False
+        for run in self.runs:
+            if run.text == start_run[0].text:
+                found_start = True
+                del_element.add_deltext(run, run.text[start_run[1]:])
+                run.text = run.text[:start_run[1]]
+            elif end_run and run.text == end_run[0].text:
+                del_element.add_deltext(run, run.text[:end_run[1]+1])
+                run.text = run.text[end_run[1]+1:]
+                break
+            elif found_start:
+                del_element.add_deltext(run, run.text)
+                self.delete_run(run)
+
+        ins_element.add_run(replacement_text)
 
     @property
     def runs(self):
@@ -138,6 +187,40 @@ class Paragraph(Parented):
     def text(self, text):
         self.clear()
         self.add_run(text)
+
+    def text_starts_in_paragraph(self, text):
+        """
+        Return a boolean representing whether the text provided
+        starts within the paragraph.
+        """
+
+        if text in self.text:
+            return True
+
+        while text:
+            if self.text.endswith(text):
+                return True
+
+            text = " ".join(text.split(" ")[:len(text.split(" "))-1])
+
+        return False
+
+    def text_ends_in_paragraph(self, text):
+        """
+        Return a boolean representing whether any portion of the text provided
+        ends within the paragraph.
+        """
+
+        if text in self.text:
+            return True
+
+        while text:
+            if self.text.startswith(text):
+                return True
+
+            text = " ".join(text.split(" ")[1:])
+
+        return False
 
     def _insert_paragraph_before(self):
         """
