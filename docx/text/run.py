@@ -174,6 +174,13 @@ class Run(Parented):
         ins_elem = self._r.add_ins_after()
         return Ins(ins_elem, self._parent)
 
+    def add_track_insert_before(self):
+        """
+        Return a newly created ins, inserted directly before this run.
+        """
+        ins_elem = self._r.add_ins_before()
+        return Ins(ins_elem, self._parent)
+
     def add_track_delete_after(self):
         """
         Return a newly created del, inserted directly after this run.
@@ -293,7 +300,8 @@ class Run(Parented):
 
         while text:
             if self.text.strip().endswith(text):
-                return len(self.text.strip()) - len(text) - subtract_space
+                print(self.text, '-', text)
+                return len(self.text.strip()) - len(text) + subtract_space
             text = text[:-1]
 
     def text_end_index(self, text):

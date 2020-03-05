@@ -63,6 +63,14 @@ class CT_R(BaseOxmlElement):
         self.addnext(new_ins)
         return new_ins
 
+    def add_ins_before(self):
+        """
+        Return a new ``<w:ins>`` element inserted directly before this run.
+        """
+        new_ins = OxmlElement('w:ins')
+        self.addprevious(new_ins)
+        return new_ins
+
     def add_del_after(self):
         """
         Return a new ``<w:del>`` element inserted directly after this run.

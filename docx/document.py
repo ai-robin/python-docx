@@ -103,20 +103,21 @@ class Document(ElementProxy):
 
     def find_text_paragraphs(self, text):
         """
-        Return the start and end paragraphs of the text provided.
+        Return the indexes of the start and end paragraphs, where the text provided
+        can be found.
         """
 
-        start_paragraph = None
-        end_paragraph = None
-        for paragraph in self.paragraphs:
+        start_paragraph = end_paragraph = None
+
+        for paragraph_number, paragraph in enumerate(self.paragraphs):
             if text in paragraph.text:
-                start_paragraph = paragraph
-                end_paragraph = paragraph
+                start_paragraph = paragraph_number
+                end_paragraph = paragraph_number
                 break
             elif not start_paragraph and paragraph.text_starts_in_paragraph(text):
-                start_paragraph = paragraph
+                start_paragraph = paragraph_number
             elif start_paragraph and paragraph.text_ends_in_paragraph(text):
-                end_paragraph = paragraph
+                end_paragraph = paragraph_number
                 break
 
         return start_paragraph, end_paragraph
@@ -154,10 +155,10 @@ class Document(ElementProxy):
 
         start_paragraph, end_paragraph = self.find_text_paragraphs(original_text)
 
-        start_paragraph.replace_text_track_change(original_text, replacement_text)
-
-        if start_paragraph.text != end_paragraph.text:
-            end_paragraph.replace_text_track_change(original_text, replacement_text)
+        numbered_paragraphs = {index: x for index, x in enumerate(self.paragraphs)}
+        for paragraph_number in range(start_paragraph, end_paragraph+1):
+            numbered_paragraphs[paragraph_number].replace_text_track_change(original_text,
+                                                                            replacement_text)
 
     def save(self, path_or_stream):
         """

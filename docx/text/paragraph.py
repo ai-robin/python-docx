@@ -10,7 +10,7 @@ from __future__ import (
 
 from ..enum.style import WD_STYLE_TYPE
 from .parfmt import ParagraphFormat
-from .run import Run
+from .run import Run, Del
 from ..shared import Parented
 
 
@@ -38,6 +38,15 @@ class Paragraph(Parented):
         if style:
             run.style = style
         return run
+
+    def add_del_at_start(self):
+        """
+        Insert a del element at the start of this paragraph
+        """
+        d = self._p.add_d()
+        d_elem = Del(d, self)
+
+        return d_elem
 
     @property
     def alignment(self):
@@ -76,6 +85,8 @@ class Paragraph(Parented):
             if start_index is not None:
                 return run, start_index
 
+        return None, None
+
 
     def find_text_end_run(self, text):
         """
@@ -88,6 +99,7 @@ class Paragraph(Parented):
             if end_index is not None:
                 return run, end_index
 
+        return None, None
 
     def insert_paragraph_before(self, text=None, style=None):
         """
@@ -111,30 +123,61 @@ class Paragraph(Parented):
         """
         return ParagraphFormat(self._element)
 
+    def create_track_change_elements(self, start_run, end_run):
+        """
+        Create insertion and deletion elements within the paragraph, depending
+        on whether the start and end runs containing text to be replaced, are
+        present within this paragraph.
+        """
+
+        if start_run and not end_run:
+            # Text starts but doesn't end in this paragraph
+            del_element = start_run.add_track_delete_after()
+            ins_element = None
+        elif start_run and end_run:
+            # Text starts and ends in this paragraph
+            del_element = start_run.add_track_delete_after()
+            ins_element = end_run.add_track_insert_after()
+        elif end_run:
+            # Text ends but does not start in this paragraph
+            del_element = end_run.add_track_delete_before()
+            ins_element = end_run.add_track_insert_before()
+        else:
+            # Text doesn't start or end in this paragraph
+            del_element = self.add_del_at_start()
+            ins_element = None
+
+        return ins_element, del_element
+
+
     def replace_text_track_change(self, original_text, replacement_text):
         """
-
+        Replace text with some replacement text. Determine whether (and where)
+        the text starts within the paragraph, and add tracked revisions to
+        indicate deletions and insertions.
         """
 
-        start_run = self.find_text_start_run(original_text)
-        end_run = self.find_text_end_run(original_text)
-        del_element = start_run[0].add_track_delete_after()
-        ins_element = start_run[0].add_track_insert_after()
-        found_start = False
+        start_run, start_index = self.find_text_start_run(original_text)
+        end_run, end_index = self.find_text_end_run(original_text)
+
+        ins_element, del_element = self.create_track_change_elements(start_run, end_run)
+        replace_start = True if not start_run else False
+
         for run in self.runs:
-            if run.text == start_run[0].text:
-                found_start = True
-                del_element.add_deltext(run, run.text[start_run[1]:])
-                run.text = run.text[:start_run[1]]
-            elif end_run and run.text == end_run[0].text:
-                del_element.add_deltext(run, run.text[:end_run[1]+1])
-                run.text = run.text[end_run[1]+1:]
+            if start_run and run.text == start_run.text:
+                replace_start = True
+                del_element.add_deltext(run, run.text[start_index:])
+                run.text = run.text[:start_index]
+            elif end_run and run.text == end_run.text:
+                del_element.add_deltext(run, run.text[:end_index+1])
+                run.text = run.text[end_index+1:]
                 break
-            elif found_start:
+            elif replace_start:
                 del_element.add_deltext(run, run.text)
                 self.delete_run(run)
 
-        ins_element.add_run(replacement_text)
+        if ins_element:
+            ins_element.add_run(replacement_text)
 
     @property
     def runs(self):
@@ -201,6 +244,7 @@ class Paragraph(Parented):
             if self.text.endswith(text):
                 return True
 
+            # Remove the last word from the text
             text = " ".join(text.split(" ")[:len(text.split(" "))-1])
 
         return False
@@ -218,6 +262,7 @@ class Paragraph(Parented):
             if self.text.startswith(text):
                 return True
 
+            # Remove the last character of the text
             text = " ".join(text.split(" ")[1:])
 
         return False
