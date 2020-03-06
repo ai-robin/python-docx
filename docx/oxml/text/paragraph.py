@@ -42,11 +42,19 @@ class CT_Del(BaseOxmlElement):
 
     def add_del_after(self):
         """
-        Return a new ``<w:del>`` element inserted directly after this one.
+        Return a new ``<w:del>`` element inserted directly after this element.
         """
         new_del = OxmlElement('w:del')
         self.addnext(new_del)
         return new_del
+
+    def add_run_after(self):
+        """
+        Return a new ``<w:r>`` element inserted directly after this element
+        """
+        new_run = OxmlElement('w:r')
+        self.addnext(new_run)
+        return new_run
 
     @property
     def text(self):

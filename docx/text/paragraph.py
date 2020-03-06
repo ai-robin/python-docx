@@ -164,7 +164,12 @@ class Paragraph(Parented):
         replace_start = True if not start_run else False
 
         for run in self.runs:
-            if start_run and run.text == start_run.text:
+            if run.text == start_run.text and start_run.text == end_run.text:
+                del_element.add_deltext(run, run.text[start_index:end_index])
+                split_run = del_element.add_run_after(original_run=start_run)
+                split_run.text = run.text[end_index+1:]
+                run.text = run.text[:start_index]
+            elif start_run and run.text == start_run.text:
                 replace_start = True
                 del_element.add_deltext(run, run.text[start_index:])
                 run.text = run.text[:start_index]

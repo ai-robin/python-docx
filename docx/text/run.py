@@ -37,6 +37,18 @@ class Ins(Parented):
 
         return run
 
+    def add_run_after(self, original_run=None):
+        """
+        Return a newly created run, inserted directly after this ins element.
+        """
+        r = self._r.add_run_after()
+        run = Run(r, self._parent)
+
+        if original_run:
+            run._r._insert_rPr(copy.deepcopy(original_run.rPr))
+
+        return run
+
     @property
     def text(self):
         """
@@ -75,6 +87,18 @@ class Del(Parented):
         run = Run(r, self)
 
         run.add_deltext(original_run, text)
+
+        return run
+
+    def add_run_after(self, original_run=None):
+        """
+        Return a newly created run, inserted directly after this del element.
+        """
+        r = self._r.add_run_after()
+        run = Run(r, self._parent)
+
+        if original_run:
+            run._r._insert_rPr(copy.deepcopy(original_run.rPr))
 
         return run
 
