@@ -155,10 +155,11 @@ class Document(ElementProxy):
 
         start_paragraph, end_paragraph = self.find_text_paragraphs(original_text)
 
-        numbered_paragraphs = {index: x for index, x in enumerate(self.paragraphs)}
-        for paragraph_number in range(start_paragraph, end_paragraph+1):
-            numbered_paragraphs[paragraph_number].replace_text_track_change(original_text,
-                                                                            replacement_text)
+        if start_paragraph is not None and end_paragraph is not None:
+            numbered_paragraphs = {index: x for index, x in enumerate(self.paragraphs)}
+            for paragraph_number in range(start_paragraph, end_paragraph+1):
+                numbered_paragraphs[paragraph_number].replace_text_track_change(original_text,
+                                                                                replacement_text)
 
     def save(self, path_or_stream):
         """

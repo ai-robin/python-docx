@@ -301,6 +301,9 @@ class Run(Parented):
         start within the run.
         """
 
+        if text in self.text:
+            return self.text.index(text)
+
         # If the phrase text starts with a space, we'll need to subtract
         # one from the index, as it will get stripped
         if self.text.startswith(' '):
@@ -317,6 +320,9 @@ class Run(Parented):
         """
 
         """
+
+        if text in self.text:
+            return self.text.index(text) + len(text)
 
         while text:
             if self.text.strip().startswith(text):
