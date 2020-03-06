@@ -130,10 +130,11 @@ class Paragraph(Parented):
         present within this paragraph.
         """
 
+        del_element = ins_element = None
+
         if start_run and not end_run:
             # Text starts but doesn't end in this paragraph
             del_element = start_run.add_track_delete_after()
-            ins_element = None
         elif start_run and end_run:
             # Text starts and ends in this paragraph
             del_element = start_run.add_track_delete_after()
@@ -145,7 +146,6 @@ class Paragraph(Parented):
         else:
             # Text doesn't start or end in this paragraph
             del_element = self.add_del_at_start()
-            ins_element = None
 
         return ins_element, del_element
 
@@ -164,7 +164,7 @@ class Paragraph(Parented):
         replace_start = True if not start_run else False
 
         for run in self.runs:
-            if run.text == start_run.text and start_run.text == end_run.text:
+            if start_run and end_run and run.text == start_run.text and start_run.text == end_run.text:
                 del_element.add_deltext(run, run.text[start_index:end_index])
                 split_run = del_element.add_run_after(original_run=start_run)
                 split_run.text = run.text[end_index+1:]
