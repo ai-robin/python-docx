@@ -44,7 +44,7 @@ class Ins(Parented):
         r = self._r.add_run_after()
         run = Run(r, self._parent)
 
-        if original_run:
+        if original_run and original_run.rPr:
             run._r._insert_rPr(copy.deepcopy(original_run.rPr))
 
         return run
@@ -97,7 +97,7 @@ class Del(Parented):
         r = self._r.add_run_after()
         run = Run(r, self._parent)
 
-        if original_run:
+        if original_run and original_run.rPr:
             run._r._insert_rPr(copy.deepcopy(original_run.rPr))
 
         return run
