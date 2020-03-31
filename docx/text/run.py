@@ -32,7 +32,7 @@ class Ins(Parented):
 
         run.text = text
 
-        if original_run:
+        if original_run and original_run.rPr:
             run._r._insert_rPr(copy.deepcopy(original_run.rPr))
 
         return run
