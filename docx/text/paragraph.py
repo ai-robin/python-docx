@@ -88,16 +88,32 @@ class Paragraph(Parented):
         return None, None
 
 
-    def find_text_end_run(self, text):
+    def find_text_end_run(self, text, start_run=None, start_index=None):
         """
         Return the run and index within the run that indicates where
         the text provided, ends.
         """
 
+        found_start = False
         for run in self.runs:
-            end_index = run.text_end_index(text)
-            if end_index is not None:
-                return run, end_index
+            if start_run and start_index:
+                if not found_start and start_run.text == run.text:
+                    found_start = True
+                    if text in run.text:
+                        return run, run.text.index(text) + len(text)
+                    else:
+                        text = text[len(run.text)-start_index:]
+                elif not found_start:
+                    continue
+
+                if text in run.text:
+                    return run, len(run.text)
+                else:
+                    text = text[len(run.text):]
+            else:
+                end_index = run.text_end_index(text)
+                if end_index is not None:
+                    return run, end_index
 
         return None, None
 
@@ -158,7 +174,7 @@ class Paragraph(Parented):
         """
 
         start_run, start_index = self.find_text_start_run(original_text)
-        end_run, end_index = self.find_text_end_run(original_text)
+        end_run, end_index = self.find_text_end_run(original_text, start_run, start_index)
 
         ins_element, del_element = self.create_track_change_elements(start_run, end_run)
         replace_start = True if not start_run else False
