@@ -153,7 +153,8 @@ class Run(Parented):
         """
 
         t = self._r.add_deltext(text)
-        self._r._insert_rPr(copy.deepcopy(original_run.rPr))
+        if original_run.rPr:
+            self._r._insert_rPr(copy.deepcopy(original_run.rPr))
 
         return _Text(t)
 
