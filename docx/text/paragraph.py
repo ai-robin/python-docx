@@ -103,11 +103,12 @@ class Paragraph(Parented):
                         return run, run.text.index(text) + len(text)
                     else:
                         text = text[len(run.text)-start_index:]
+                        continue
                 elif not found_start:
                     continue
 
                 if text in run.text:
-                    return run, len(run.text)
+                    return run, len(text)
                 else:
                     text = text[len(run.text):]
             else:
@@ -154,11 +155,11 @@ class Paragraph(Parented):
         elif start_run and end_run:
             # Text starts and ends in this paragraph
             del_element = start_run.add_track_delete_after()
-            ins_element = end_run.add_track_insert_after()
+            ins_element = start_run.add_track_insert_after()
         elif end_run:
             # Text ends but does not start in this paragraph
-            del_element = end_run.add_track_delete_before()
             ins_element = end_run.add_track_insert_before()
+            del_element = end_run.add_track_delete_before()
         else:
             # Text doesn't start or end in this paragraph
             del_element = self.add_del_at_start()
@@ -183,7 +184,7 @@ class Paragraph(Parented):
             if start_run and end_run and run.text == start_run.text and start_run.text == end_run.text:
                 del_element.add_deltext(run, run.text[start_index:end_index])
                 split_run = del_element.add_run_after(original_run=start_run)
-                split_run.text = run.text[end_index+1:]
+                split_run.text = run.text[end_index:]
                 run.text = run.text[:start_index]
             elif start_run and run.text == start_run.text:
                 replace_start = True
@@ -191,7 +192,9 @@ class Paragraph(Parented):
                 run.text = run.text[:start_index]
             elif end_run and run.text == end_run.text:
                 del_element.add_deltext(run, run.text[:end_index+1])
-                run.text = run.text[end_index+1:]
+                split_run = del_element.add_run_after(original_run=end_run)
+                split_run.text = run.text[end_index+1:]
+                run.text = ""
                 break
             elif replace_start:
                 del_element.add_deltext(run, run.text)
