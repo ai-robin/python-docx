@@ -140,7 +140,7 @@ class Paragraph(Parented):
         """
         return ParagraphFormat(self._element)
 
-    def create_track_change_elements(self, start_run, end_run):
+    def create_track_change_elements(self, start_run, end_run, create_ins_element=True):
         """
         Create insertion and deletion elements within the paragraph, depending
         on whether the start and end runs containing text to be replaced, are
@@ -155,10 +155,12 @@ class Paragraph(Parented):
         elif start_run and end_run:
             # Text starts and ends in this paragraph
             del_element = start_run.add_track_delete_after()
-            ins_element = start_run.add_track_insert_after()
+            if create_ins_element:
+                ins_element = start_run.add_track_insert_after()
         elif end_run:
             # Text ends but does not start in this paragraph
-            ins_element = end_run.add_track_insert_before()
+            if create_ins_element:
+                ins_element = end_run.add_track_insert_before()
             del_element = end_run.add_track_delete_before()
         else:
             # Text doesn't start or end in this paragraph
@@ -177,7 +179,8 @@ class Paragraph(Parented):
         start_run, start_index = self.find_text_start_run(original_text)
         end_run, end_index = self.find_text_end_run(original_text, start_run, start_index)
 
-        ins_element, del_element = self.create_track_change_elements(start_run, end_run)
+        ins_element, del_element = self.create_track_change_elements(\
+            start_run, end_run, create_ins_element=replacement_text != None)
         replace_start = True if not start_run else False
 
         for run in self.runs:
