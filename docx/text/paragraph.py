@@ -96,7 +96,7 @@ class Paragraph(Parented):
 
         found_start = False
         for run in self.runs:
-            if start_run and start_index:
+            if start_run and start_index is not None:
                 if not found_start and start_run.text == run.text:
                     found_start = True
                     if text in run.text:
