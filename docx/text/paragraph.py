@@ -94,24 +94,21 @@ class Paragraph(Parented):
         the text provided, ends.
         """
 
-        found_start = False
-        for run in self.runs:
-            if start_run and start_index is not None:
-                if not found_start and start_run.text == run.text:
-                    found_start = True
-                    if text in run.text:
-                        return run, run.text.index(text) + len(text)
-                    else:
-                        text = text[len(run.text)-start_index:]
-                        continue
-                elif not found_start:
-                    continue
-
-                if text in run.text:
-                    return run, len(text)
-                else:
-                    text = text[len(run.text):]
+        if start_run:
+            if len(text) < len(start_run.text) - start_index:
+                return start_run, start_run.text.index(text) + len(text)
             else:
+                text = text[len(start_run.text)-start_index:]
+                current_run = start_run
+                while(current_run.next()):
+                    current_run = current_run.next()
+                    if current_run.text and text in current_run.text:
+                        return current_run, len(text) - 1
+                    elif current_run.text:
+                        text = text[len(current_run.text):]
+
+        else:
+            for run in self.runs:
                 end_index = run.text_end_index(text)
                 if end_index is not None:
                     return run, end_index
@@ -193,7 +190,7 @@ class Paragraph(Parented):
                 replace_start = True
                 del_element.add_deltext(run, run.text[start_index:])
                 run.text = run.text[:start_index]
-            elif end_run and run.text == end_run.text:
+            elif replace_start and end_run and run.text == end_run.text:
                 del_element.add_deltext(run, run.text[:end_index+1])
                 split_run = del_element.add_run_after(original_run=end_run)
                 split_run.text = run.text[end_index+1:]

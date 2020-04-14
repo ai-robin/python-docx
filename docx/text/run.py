@@ -268,6 +268,9 @@ class Run(Parented):
     def italic(self, value):
         self.font.italic = value
 
+    def next(self):
+        return Run(self._r.getnext(), self._parent)
+
     @property
     def rPr(self):
         """
