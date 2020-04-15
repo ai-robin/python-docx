@@ -32,7 +32,7 @@ class Ins(Parented):
 
         run.text = text
 
-        if original_run and original_run.rPr:
+        if original_run and original_run.rPr is not None:
             run._r._insert_rPr(copy.deepcopy(original_run.rPr))
 
         return run
@@ -97,7 +97,7 @@ class Del(Parented):
         r = self._r.add_run_after()
         run = Run(r, self._parent)
 
-        if original_run and original_run.rPr:
+        if original_run and original_run.rPr is not None:
             run._r._insert_rPr(copy.deepcopy(original_run.rPr))
 
         return run
@@ -153,7 +153,7 @@ class Run(Parented):
         """
 
         t = self._r.add_deltext(text)
-        if original_run.rPr:
+        if original_run.rPr is not None:
             self._r._insert_rPr(copy.deepcopy(original_run.rPr))
 
         return _Text(t)
@@ -269,8 +269,11 @@ class Run(Parented):
         self.font.italic = value
 
     def next(self):
-        if self._r.getnext():
-            return Run(self._r.getnext(), self._parent)
+        """
+        Return the next Run at the same element level as this run.
+        """
+        if self._r.next_run() is not None:
+            return Run(self._r.next_run(), self._parent)
 
     @property
     def rPr(self):

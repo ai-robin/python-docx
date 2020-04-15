@@ -111,6 +111,17 @@ class CT_R(BaseOxmlElement):
         for child in content_child_elms:
             self.remove(child)
 
+    def next_run(self):
+        """
+        Find the next run at the same level as this element.
+        """
+
+        current_run = self
+        while current_run.getnext() is not None:
+            current_run = current_run.getnext()
+            if current_run.tag == qn('w:r'):
+                return current_run
+
     @property
     def style(self):
         """
