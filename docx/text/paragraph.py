@@ -95,12 +95,12 @@ class Paragraph(Parented):
         """
 
         if start_run:
-            if len(text) < len(start_run.text) - start_index:
+            if len(text) <= len(start_run.text) - start_index:
                 return start_run, start_run.text.index(text) + len(text)
             else:
                 text = text[len(start_run.text)-start_index:]
                 current_run = start_run
-                while(current_run.next()):
+                while (current_run.next()):
                     current_run = current_run.next()
                     if current_run.text and text in current_run.text:
                         return current_run, len(text) - 1

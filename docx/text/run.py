@@ -269,7 +269,8 @@ class Run(Parented):
         self.font.italic = value
 
     def next(self):
-        return Run(self._r.getnext(), self._parent)
+        if self._r.getnext():
+            return Run(self._r.getnext(), self._parent)
 
     @property
     def rPr(self):
