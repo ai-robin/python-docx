@@ -93,6 +93,18 @@ class Document(ElementProxy):
         table.style = style
         return table
 
+    def bold_text(self):
+        """
+        Find bold text within the document.
+        """
+
+        text = []
+        for paragraph in self.paragraphs:
+            paragraph_bold_text = paragraph.bold_text()
+            text = text + paragraph_bold_text
+
+        return text
+
     @property
     def core_properties(self):
         """

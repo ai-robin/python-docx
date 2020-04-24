@@ -63,6 +63,19 @@ class Paragraph(Parented):
     def alignment(self, value):
         self._p.alignment = value
 
+    def bold_text(self):
+        """
+        Find bold text within the paragraph, by looking at the style of each
+        run.
+        """
+
+        text = []
+        for run in self.runs:
+            if run.bold and run.text:
+                text.append(run.text)
+
+        return text
+
     def clear(self):
         """
         Return this same paragraph after removing all its content.
