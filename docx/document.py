@@ -212,6 +212,14 @@ class Document(ElementProxy):
         return self._body.tables
 
     @property
+    def text(self):
+        """
+        Text within the Document, compiled by combining the text represented
+        by each |Paragraph| object in this document.
+        """
+        return " ".join(paragraph.text for paragraph in self.paragraphs)
+
+    @property
     def _block_width(self):
         """
         Return a |Length| object specifying the width of available "writing"
